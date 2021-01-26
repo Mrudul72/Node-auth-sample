@@ -5,13 +5,15 @@ var bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 /* GET home page. */
 router.get("/", function (req, res, next) {
-  res.render("index", { title: "Rubin" });
+  res.render("index", { title: "Mrudul" });
 });
 
 router.post("/register", async (req, res, next) => {
   var user = new users({
-    username: req.body.username,
+    name: req.body.name,
     password: req.body.password,
+    email:req.body.email,
+    mobile:req.body.mobile
   });
   var response = await user.save();
   console.log(response);
@@ -21,17 +23,17 @@ router.post("/register", async (req, res, next) => {
     res.status(401).json({ status: "failed" });
   }
 });
-router.get("/login", async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
   try {
     //validation
-    if (!req.body.username || !req.body.password)
+    if (!req.body.email || !req.body.password)
       return res.status(400).json({
         status: false,
         message: "Validation Failed",
       });
 
     const user = await users.findOne({
-      username: req.body.username,
+      email: req.body.email,
     });
     console.log(user);
     if (!user)
@@ -48,7 +50,7 @@ router.get("/login", async (req, res, next) => {
       });
 
     const token = jwt.sign(
-      { userid: user._id, username: user.username },
+      { userid: user._id, email: user.email },
       process.env.SECRET_CODE,
       { expiresIn: "1d" }
     );
